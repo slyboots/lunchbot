@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, make_response
 )
 from werkzeug.exceptions import abort
 from lunchbot.db import get_db
@@ -15,7 +15,7 @@ def update():
         and then send it back to them
     '''
     if not request.is_json:
-        abort(500)
+       return make_response("Not JSON data", 500, {"X-Slack-No-Retry": 1})
     data = request.get_json()
     if data.get('type','') == 'url_verification':
         return jsonify({'challenge': data.get('challenge')})
