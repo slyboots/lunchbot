@@ -1,2 +1,2 @@
-# Lunchable
-small service for logging who is on lunch and updating our geckoboard
+# lunchbot
+small service for connecting slack to our geckoboard

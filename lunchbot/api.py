@@ -2,8 +2,8 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
 from werkzeug.exceptions import abort
-from hungrybot.db import get_db
-from hungrybot.slack import from_event_json
+from lunchbot.db import get_db
+from lunchbot.slack import from_event_json
 
 bp = Blueprint('api', __name__)
 
