@@ -7,20 +7,21 @@ from hungrybot.slack import from_event_json
 
 bp = Blueprint('api', __name__)
 
-@bp.route('/accepted/', methods=['POST'])
-def challenge_accepted():
+@bp.route('/event/', methods=['POST'])
+def update():
     '''a special endpoint for the slack api cat and mouse verification game
         https://api.slack.com/events-api
         Slack sends us a challenge token, and we have to... "accept" it,
         and then send it back to them
     '''
-    if request.is_json:
-        data = request.get_json()
-        if data.get('type','') == 'url_verification':
-            return jsonify({'challenge': data.get('challenge')})
-        else:
-            print(jsonify(data))
-            return jsonify(data)
+    if not request.is_json:
+        abort(500)
+    data = request.get_json()
+    if data.get('type','') == 'url_verification':
+        return jsonify({'challenge': data.get('challenge')})
+    else:
+        print(jsonify(data))
+        return jsonify(data)
 
 
 @bp.route('/geeks/', methods=['GET', 'POST'])
