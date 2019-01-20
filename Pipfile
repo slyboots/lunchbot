@@ -9,6 +9,7 @@ pylint = "*"
 
 [packages]
 flask = "*"
+slackclient = "*"
 
 [requires]
 python_version = "3"
