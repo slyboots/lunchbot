@@ -47,12 +47,14 @@ class Bot(object):
         joke = f"Hi {name}, I'm {BOTNAME}"
         self._send_message(channel, joke)
 
+
     def start_lunch(self, user, channel):
         self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you humans eat!")
 
 
     def stop_lunch(self, user, channel):
         self._send_message(channel, f"Good. Now get back to work human meatsack!")
+
 
     def _send_message(self,channel,text,**kwargs):
         post_message = self.client.api_call("chat.postMessage",
