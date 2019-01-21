@@ -2,7 +2,6 @@ import sqlite3
 
 import click
 from flask import current_app, g
-from flask.cli import with_appcontext
 
 
 def get_db():
@@ -22,7 +21,6 @@ def close_db(e=None):
 
 
 def init_db():
-    current_app.logger.debug('Initializing database')
     db = get_db()
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
