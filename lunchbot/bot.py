@@ -6,8 +6,6 @@ from flask import current_app
 from slackclient import SlackClient
 from lunchbot import BOTNAME
 
-logger = current_app.logger
-
 def sanitize(text):
     return re.sub(r'[^a-zA-Z0-9\s]','',text).lower()
 
@@ -20,13 +18,12 @@ class Bot(object):
         self.verification = os.environ.get("VERIFICATION_TOKEN")
         self.client = SlackClient(os.getenv("BOT_TOKEN"))
 
-
     def respond(self, event):
         user = event['event']['user']
         message = sanitize(event['event']['text'])
         channel = event['event']['channel']
         timestamp = event['event']['ts']
-        logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
+        current_app.logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
         if self.could_make_dad_joke(message):
             self.with_dad_joke(channel, message, timestamp)
 
@@ -50,4 +47,4 @@ class Bot(object):
                                             text=text,
                                             **kwargs
                                             )
-        logger.debug(f"sent message: {post_message}")
+        current_app.logger.debug(f"sent message: {post_message}")

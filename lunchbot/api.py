@@ -10,7 +10,6 @@ from lunchbot import bot, BOTNAME, BOTID
 
 bp = Blueprint('api', __name__)
 lunchbot = bot.Bot()
-logger = current_app.logger
 
 def _event_handler(event_type, slack_event):
     """
@@ -57,7 +56,7 @@ def receive():
     if not request.is_json:
        return make_response("Not JSON data", 500, {"X-Slack-No-Retry": 1})
     slack_event = json.loads(request.data)
-    logger.debug(f"received event: {json.dumps(slack_event)}")
+    current_app.logger.debug(f"received event: {json.dumps(slack_event)}")
     # Slack URL Verification
     if "challenge" in slack_event:
         return jsonify({'challenge': slack_event['challenge']})
