@@ -1,8 +1,7 @@
 import json
 from flask import (
-    Blueprint, flash, redirect, render_template,
-    request, url_for, jsonify, make_response,
-    current_app
+    Blueprint, redirect, render_template, request,
+    url_for, jsonify, make_response, current_app
 )
 from werkzeug.exceptions import abort
 from lunchbot.db import get_db
@@ -91,20 +90,17 @@ def list():
     '''
     if request.method == 'POST' and request.is_json:
         data = request.get_json()
-        if any(x is None for x in [data['name'], data['lunchstatus']]) is None:
-            flash("heck")
-        else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO geek (name, lunchstatus)'
-                ' VALUES (?, ?)',
-                (data['name'], data['lunchstatus'])
-            )
-            db.commit()
-            return redirect(url_for('api.list'))
+        db = get_db()
+        db.execute(
+            'INSERT INTO geeks (id, username, onlunch)'
+            ' VALUES (?, ?, ?)',
+            (data.keys())
+        )
+        db.commit()
+        return redirect(url_for('api.list'))
     if request.method == 'GET':
         db = get_db()
-        geeks = db.execute('SELECT * FROM geek').fetchall()
+        geeks = db.execute('SELECT * FROM geeks').fetchall()
         geeks_json = jsonify([dict(i) for i in geeks])
         return geeks_json
     else:
