@@ -34,7 +34,7 @@ class Bot(object):
     def with_dad_joke(self, channel, message, timestamp):
         name = re.sub(r'^.*(im|i am)', '', message).strip()
         joke = f"Hi {name}, I'm {BOTNAME}"
-        self._send_message(channel, joke, thread_ts=timestamp)
+        self._send_message(channel, joke)
 
 
     def could_make_dad_joke(self, text):
