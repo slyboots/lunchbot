@@ -34,12 +34,12 @@ class Bot(object):
         channel = event['event']['channel']
         timestamp = event['event']['ts']
         current_app.logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
-        if REQUEST_MATCHER['dad_joke'](text):
+        if REQUEST_MATCHER['dad_joke'](message):
             self.make_dad_joke(channel, message, timestamp)
-        elif REQUEST_MATCHER['start_lunch'](text):
-            self.start_lunch()
-        elif REQUEST_MATCHER['stop_lunch'](text):
-            self.stop_lunch()
+        elif REQUEST_MATCHER['start_lunch'](message):
+            self.start_lunch(user, channel)
+        elif REQUEST_MATCHER['stop_lunch'](message):
+            self.stop_lunch(user, channel)
 
 
     def make_dad_joke(self, channel, message, timestamp):
@@ -52,7 +52,7 @@ class Bot(object):
 
 
     def stop_lunch(self, user, channel):
-        self._send_message(channel, f"Glad you're back. Now get back to work human meatsack!")
+        self._send_message(channel, f"Good. Now get back to work human meatsack!")
 
     def _send_message(self,channel,text,**kwargs):
         post_message = self.client.api_call("chat.postMessage",
