@@ -5,7 +5,6 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 from lunchbot.db import get_db
-from lunchbot.slack import from_event_json
 from lunchbot import bot, BOTNAME, BOTID
 
 bp = Blueprint('api', __name__)
