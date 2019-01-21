@@ -27,24 +27,25 @@ class Bot(object):
         self.verification = os.environ.get("VERIFICATION_TOKEN")
         self.client = SlackClient(os.getenv("BOT_TOKEN"))
 
+
     def respond(self, event):
         user = event['event']['user']
         message = sanitize(event['event']['text'])
         channel = event['event']['channel']
         timestamp = event['event']['ts']
         current_app.logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
-        if self.could_make_dad_joke(message):
-            self.with_dad_joke(channel, message, timestamp)
+        if REQUEST_MATCHER['dad_joke'](text):
+            self.make_dad_joke(channel, message, timestamp)
+        elif REQUEST_MATCHER['start_lunch'](text):
+            self.start_lunch()
+        elif REQUEST_MATCHER['stop_lunch'](text):
+            self.stop_lunch()
 
 
-    def with_dad_joke(self, channel, message, timestamp):
-        name = re.sub(r'^.*(im|i am)', '', message).strip()
+    def make_dad_joke(self, channel, message, timestamp):
+        name = re.sub(r'^.*(i( a)?m)', '', message).strip()
         joke = f"Hi {name}, I'm {BOTNAME}"
         self._send_message(channel, joke)
-
-
-    def could_make_dad_joke(self, text):
-        return 'im hungry' in text
 
 
     def _send_message(self,channel,text,**kwargs):
