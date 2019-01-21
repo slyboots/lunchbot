@@ -2,10 +2,9 @@
 import os
 import re
 from flask import current_app
-
+from werkzeug.local import LocalProxy
 from slackclient import SlackClient
-from lunchbot import BOTNAME
-
+from lunchbot import BOTNAME, db
 
 REQUEST_MATCHER = {
     'dad_joke': lambda x: re.match(r'^.*(i( a)??m).+hungry', x),
@@ -26,7 +25,7 @@ class Bot(object):
         self.emoji = ":robot_face:"
         self.verification = os.environ.get("VERIFICATION_TOKEN")
         self.client = SlackClient(os.getenv("BOT_TOKEN"))
-
+        self.brain = LocalProxy(db.get_db)
 
     def respond(self, event):
         user = event['event']['user']
@@ -50,11 +49,21 @@ class Bot(object):
 
     def start_lunch(self, user, channel):
         self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you humans eat!")
+        self._update_db(user,None,1)
 
 
     def stop_lunch(self, user, channel):
         self._send_message(channel, f"Good. Now get back to work human meatsack!")
+        self._update_db(user,None,0)
 
+    def _update_db(self,*argv):
+        self.brain.execute(
+            'INSERT INTO geek (id,username,onlunch)'
+            ' VALUES (?,?,?)'
+            ' ON CONFLICT(id) DO UPDATE SET onlunch=excluded.onlunch',
+            argv
+        )
+        self.brain.commit()
 
     def _send_message(self,channel,text,**kwargs):
         post_message = self.client.api_call("chat.postMessage",

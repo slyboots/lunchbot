@@ -8,8 +8,10 @@ from werkzeug.exceptions import abort
 from lunchbot.db import get_db
 from lunchbot import bot, BOTNAME, BOTID
 
+
 bp = Blueprint('api', __name__)
 lunchbot = bot.Bot()
+
 
 def _event_handler(event_type, slack_event):
     """
@@ -30,7 +32,8 @@ def _event_handler(event_type, slack_event):
     # When you say @lunchbot
     if event_type == "app_mention":
         # send to bot for response
-        lunchbot.respond(slack_event)
+        with current_app.app_context():
+            lunchbot.respond(slack_event)
         return make_response("mention received", 200,)
 
     # ================ Message Events =============== #
@@ -41,13 +44,15 @@ def _event_handler(event_type, slack_event):
         message = slack_event['event']['text']
         if any(i in message for i in [BOTNAME, BOTID]):
             response = make_response("message accepted", 200)
-            lunchbot.respond(slack_event)
+            with current_app.app_context():
+                lunchbot.respond(slack_event)
         return response
 
     # ============= Event Type Not Found! ============= #
     # If the event_type does not have a handler
     message = f"No handler defined for the {event_type}"
     return make_response(message, 200, {"X-Slack-No-Retry": 1})
+
 
 @bp.route('/events/', methods=['GET', 'POST'])
 def receive():
