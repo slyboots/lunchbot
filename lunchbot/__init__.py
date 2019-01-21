@@ -4,6 +4,10 @@ from flask import Flask, render_template_string
 BOTNAME = __name__
 BOTID = os.getenv('BOTID')
 
+def no_retry_response(e, status_code=500):
+    """responds with a slack no retry header"""
+    return make_response(message, status_code, {"X-Slack-No-Retry": 1})
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -34,5 +38,5 @@ def create_app(test_config=None):
     db.init_app(app)
     from . import api
     app.register_blueprint(api.bp)
-
+    app.register_error_handler(500, no_retry_response)
     return app
