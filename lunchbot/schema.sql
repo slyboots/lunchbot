@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS geek;
 
-CREATE TABLE geek (
+CREATE TABLE geeks (
   id TEXT PRIMARY KEY,
   username TEXT,
   onlunch INTEGER NOT NULL DEFAULT 0
