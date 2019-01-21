@@ -8,8 +8,9 @@ from lunchbot import BOTNAME, db
 
 REQUEST_MATCHER = {
     'dad_joke': lambda x: re.match(r'^.*(i( a)??m).+hungry', x),
-    'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take).+lunch', x),
-    'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x)
+    'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take).+(lunch|food)', x),
+    'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x),
+    'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit).*', x)
 }
 
 
@@ -33,7 +34,9 @@ class Bot(object):
         channel = event['event']['channel']
         timestamp = event['event']['ts']
         current_app.logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
-        if REQUEST_MATCHER['dad_joke'](message):
+        if REQUEST_MATCHER['needs_snickers'](message):
+            self.recommend_snickers(channel)
+        elif REQUEST_MATCHER['dad_joke'](message):
             self.make_dad_joke(channel, message, timestamp)
         elif REQUEST_MATCHER['start_lunch'](message):
             self.start_lunch(user, channel)
@@ -41,20 +44,41 @@ class Bot(object):
             self.stop_lunch(user, channel)
 
 
+    def recommend_snickers(self, channel):
+        joke = f"You get so cranky when you're hungry. Have a snickers:\nhttps://www.amazon.com/SNICKERS-Singles-Chocolate-1-86-Ounce-48-Count/dp/B001HXI0V0/ref=sr_1_5?keywords=snicker&qid=1548107459&sr=8-5"
+        self._send_message(channel, joke, unfurl_media=True)
+
+
     def make_dad_joke(self, channel, message, timestamp):
-        name = re.sub(r'^.*(i( a)?m)', '', message).strip()
+        name = re.sub(r'(i( a)?m|uf3l7l0dv)+', '', message).strip()
         joke = f"Hi {name}, I'm {BOTNAME}"
         self._send_message(channel, joke)
 
 
     def start_lunch(self, user, channel):
-        self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you humans eat!")
-        self._update_db(user,None,1)
+        geeks_eating = self.get_geeks_onlunch()
+        if len(geeks_eating) > 1:
+            geek_list = "\n".join(f"- <@{geek['id']}>" for geek in geeks_eating)
+            self._send_message(
+                channel,
+                f"*Whoa! We're {len(geeks_eating)} geeks short right now!*\n"
+                "_Maybe wait a bit or slack the gluttons to see when they'll be done?_\n"
+                f"Here they are:\n{geek_list}"
+            )
+        else:
+            self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you humans eat!")
+            self._update_db(user,None,1)
 
 
     def stop_lunch(self, user, channel):
         self._send_message(channel, f"Good. Now get back to work human meatsack!")
         self._update_db(user,None,0)
+
+
+    def get_geeks_onlunch(self):
+        result = self.brain.execute('SELECT * from geeks where onlunch=1').fetchall()
+        return result
+
 
     def _update_db(self,*argv):
         self.brain.execute(
