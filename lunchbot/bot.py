@@ -1,14 +1,12 @@
 '''actual bot code'''
 import os
 import re
+from flask import current_app
 
 from slackclient import SlackClient
 from lunchbot import BOTNAME
-# To remember which teams have authorized your app and what tokens are
-# associated with each team, we can store this information in memory on
-# as a global object. When your bot is out of development, it's best to
-# save this in a more persistant memory store.
-authed_teams = {}
+
+logger = current_app.logger
 
 def sanitize(text):
     return re.sub(r'[^a-zA-Z0-9\s]','',text).lower()
@@ -19,14 +17,6 @@ class Bot(object):
         super(Bot, self).__init__()
         self.name = BOTNAME
         self.emoji = ":robot_face:"
-        # When we instantiate a new bot object, we can access the app
-        # credentials we set earlier in our local development environment.
-        self.oauth = {"client_id": os.environ.get("CLIENT_ID"),
-                      "client_secret": os.environ.get("CLIENT_SECRET"),
-                      # Scopes provide and limit permissions to what our app
-                      # can access. It's important to use the most restricted
-                      # scope that your app will need.
-                      "scope": "bot"}
         self.verification = os.environ.get("VERIFICATION_TOKEN")
         self.client = SlackClient(os.getenv("BOT_TOKEN"))
         self.messages = {}
@@ -36,6 +26,7 @@ class Bot(object):
         message = sanitize(event['event']['text'])
         channel = event['event']['channel']
         timestamp = event['event']['ts']
+        logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
         if self.could_make_dad_joke(message):
             self.with_dad_joke(channel, message, timestamp)
 
@@ -59,4 +50,4 @@ class Bot(object):
                                             text=text,
                                             **kwargs
                                             )
-        print(f"sent message: {post_message}")
+        logger.debug(f"sent message: {post_message}")

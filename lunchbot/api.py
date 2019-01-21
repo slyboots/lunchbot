@@ -1,7 +1,8 @@
 import json
 from flask import (
     Blueprint, flash, redirect, render_template,
-    request, url_for, jsonify, make_response
+    request, url_for, jsonify, make_response,
+    current_app
 )
 from werkzeug.exceptions import abort
 from lunchbot.db import get_db
@@ -9,6 +10,7 @@ from lunchbot import bot, BOTNAME, BOTID
 
 bp = Blueprint('api', __name__)
 lunchbot = bot.Bot()
+logger = current_app.logger
 
 def _event_handler(event_type, slack_event):
     """
@@ -55,13 +57,14 @@ def receive():
     if not request.is_json:
        return make_response("Not JSON data", 500, {"X-Slack-No-Retry": 1})
     slack_event = json.loads(request.data)
+    logger.debug(f"received event: {json.dumps(slack_event)}")
     # Slack URL Verification
     if "challenge" in slack_event:
         return jsonify({'challenge': slack_event['challenge']})
     # Token Verification
     if lunchbot.verification != slack_event.get("token"):
         message = f"Invalid Slack verification token: {slack_event['token']} \
-                   \npyBot has: {lunchbot.verification}\n\n"
+                   \nlunchbot has: {lunchbot.verification}\n\n"
         return make_response(message, 403, {"X-Slack-No-Retry": 1})
     # Handle events
     if "event" in slack_event:
