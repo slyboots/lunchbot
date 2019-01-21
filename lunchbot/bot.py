@@ -58,7 +58,7 @@ class Bot(object):
 
     def _update_db(self,*argv):
         self.brain.execute(
-            'INSERT INTO geek (id,username,onlunch)'
+            'INSERT INTO geeks (id,username,onlunch)'
             ' VALUES (?,?,?)'
             ' ON CONFLICT(id) DO UPDATE SET onlunch=excluded.onlunch',
             argv
