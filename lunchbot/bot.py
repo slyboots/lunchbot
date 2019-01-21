@@ -28,32 +28,8 @@ class Bot(object):
                       # scope that your app will need.
                       "scope": "bot"}
         self.verification = os.environ.get("VERIFICATION_TOKEN")
-        self.client = SlackClient("")
+        self.client = SlackClient(os.getenv("BOT_TOKEN"))
         self.messages = {}
-
-    def auth(self, code):
-        """
-        Authenticate with OAuth and assign correct scopes.
-        Save a dictionary of authed team information in memory on the bot
-        object.
-        Parameters
-        ----------
-        code : str
-            temporary authorization code sent by Slack to be exchanged for an
-            OAuth token
-        """
-        auth_response = self.client.api_call(
-                                "oauth.access",
-                                client_id=self.oauth["client_id"],
-                                client_secret=self.oauth["client_secret"],
-                                code=code
-                                )
-        print(f"AUTH RESPONSE: {auth_response}")
-        team_id = auth_response["team_id"]
-        authed_teams[team_id] = {"bot_token":
-                                 auth_response["bot"]["bot_access_token"]}
-        self.client = SlackClient(authed_teams[team_id]["bot_token"])
-        print(f"AUTHED TEAMS: {authed_teams}")
 
     def respond(self, event):
         user = event['event']['user']

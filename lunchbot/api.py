@@ -102,29 +102,3 @@ def list():
         return geeks_json
     else:
         make_response("", 405, {"X-Slack-No-Retry": 1})
-
-@bp.route("/install", methods=["GET"])
-def pre_install():
-    """This route renders the installation page with 'Add to Slack' button."""
-    # Since we've set the client ID and scope on our Bot object, we can change
-    # them more easily while we're developing our app.
-    client_id = lunchbot.oauth["client_id"]
-    scope = lunchbot.oauth["scope"]
-    # Our template is using the Jinja templating language to dynamically pass
-    # our client id and scope
-    return render_template("install.html", client_id=client_id, scope=scope)
-
-@bp.route("/thanks", methods=["GET", "POST"])
-def thanks():
-    """
-    This route is called by Slack after the user installs our app. It will
-    exchange the temporary authorization code Slack sends for an OAuth token
-    which we'll save on the bot object to use later.
-    To let the user know what's happened it will also render a thank you page.
-    """
-    # Let's grab that temporary authorization code Slack's sent us from
-    # the request's parameters.
-    code_arg = request.args.get('code')
-    # The bot's auth method to handles exchanging the code for an OAuth token
-    lunchbot.auth(code_arg)
-    return render_template("thanks.html")
