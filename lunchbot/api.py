@@ -35,7 +35,7 @@ def _event_handler(event_type, slack_event):
 
     # ================ Message Events =============== #
     # In the event you forgot to put the "@" before lunchbot
-    if event_type == "message" and slack_event['event'].get('user') != BOTID:
+    if event_type == "message" and "client_msg_id" in slack_event['event']:
         # ignore messages unless they have BOTNAME in the text
         response = make_response("message ignored", 200)
         message = slack_event['event']['text']
