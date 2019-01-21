@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template_string
 
 BOTNAME = __name__
+BOTID = os.getenv('BOTID')
 
 def create_app(test_config=None):
     # create and configure the app
