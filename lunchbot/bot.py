@@ -19,7 +19,7 @@ class Bot(object):
         self.emoji = ":robot_face:"
         self.verification = os.environ.get("VERIFICATION_TOKEN")
         self.client = SlackClient(os.getenv("BOT_TOKEN"))
-        self.messages = {}
+
 
     def respond(self, event):
         user = event['event']['user']
