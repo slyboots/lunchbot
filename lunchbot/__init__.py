@@ -1,14 +1,28 @@
 import os
-from flask import Flask, render_template_string
+import logging
+from flask import Flask, render_template_string, request, make_response
+from flask.logging import default_handler
 
 BOTNAME = __name__
 BOTID = os.getenv('BOTID')
+
+class RequestFormatter(logging.Formatter):
+    def format(self, record):
+        record.url = request.url
+        record.remote_addr = request.remote_addr
+        return super().format(record)
+
+formatter = RequestFormatter(
+    '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
+    '%(levelname)s in %(module)s: %(message)s'
+)
 
 def no_retry_response(e, status_code=500):
     """responds with a slack no retry header"""
     return make_response(message, status_code, {"X-Slack-No-Retry": 1})
 
 def create_app(test_config=None):
+    default_handler.setFormatter(formatter)
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
