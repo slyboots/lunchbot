@@ -6,8 +6,17 @@ from flask import current_app
 from slackclient import SlackClient
 from lunchbot import BOTNAME
 
+
+REQUEST_MATCHER = {
+    'dad_joke': lambda x: re.match(r'^.*(i( a)??m).+hungry', x),
+    'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take).+lunch', x),
+    'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x)
+}
+
+
 def sanitize(text):
     return re.sub(r'[^a-zA-Z0-9\s]','',text).lower()
+
 
 class Bot(object):
     """ Instanciates a Bot object to handle Slack onboarding interactions."""
