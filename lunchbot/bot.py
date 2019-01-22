@@ -10,7 +10,8 @@ REQUEST_MATCHER = {
     'dad_joke': lambda x: re.match(r'^.*(i( a)??m).+hungry', x),
     'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take).+(lunch|food)', x),
     'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x),
-    'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit).*', x)
+    'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit).*', x),
+    'insult_lindsey': lambda x: re.match(r'.*insult lindsey.*', x)
 }
 
 
@@ -42,6 +43,13 @@ class Bot(object):
             self.start_lunch(user, channel)
         elif REQUEST_MATCHER['stop_lunch'](message):
             self.stop_lunch(user, channel)
+        elif REQUEST_MATCHER['insult_lindsey'](message):
+            self.insult_lindsey(channel)
+
+
+    def insult_lindsey(self, channel):
+        self._send_message(os.getenv('LINDSEY_ID'),"You are the worst!")
+        self._send_message(channel, "Just did!")
 
 
     def recommend_snickers(self, channel):
