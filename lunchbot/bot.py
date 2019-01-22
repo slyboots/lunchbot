@@ -65,7 +65,7 @@ class Bot(object):
 
     def start_lunch(self, user, channel):
         geeks_eating = self.get_geeks_onlunch()
-        if len(geeks_eating) > 1:
+        if len(geeks_eating) > int(os.getenv('LUNCH_WARNING_THRESHOLD')):
             geek_list = "\n".join(f"- <@{geek['id']}>" for geek in geeks_eating)
             self._send_message(
                 channel,
