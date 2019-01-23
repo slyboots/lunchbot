@@ -10,11 +10,12 @@ REQUEST_MATCHER = {
     'dad_joke': lambda x: re.match(r'^.*(i( a)??m).+hungry', x),
     'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take|brb).+(lunch|food)', x),
     'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x),
-    'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit).*', x),
+    'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit|suck).*', x),
     'insult_lindsey': lambda x: re.match(r'.*insult lindsey.*', x),
     'love': lambda x: re.match(r'.*i love you.*', x),
     'help': lambda x: re.match(r'.*h(e|a)lp.*', x),
-    'status_report': lambda x: re.match(r'.*status( report)?.*', x)
+    'status_report': lambda x: re.match(r'.*status( report)?.*', x),
+    'ping': lambda x: re.match(r'.*ping.*', x)
 }
 
 
@@ -40,6 +41,8 @@ class Bot(object):
         current_app.logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
         if REQUEST_MATCHER['help'](message):
             self.help(channel)
+        elif REQUEST_MATCHER['ping'](message):
+            self.ping_pong(channel)
         elif REQUEST_MATCHER['start_lunch'](message):
             self.start_lunch(user, channel)
         elif REQUEST_MATCHER['stop_lunch'](message):
@@ -55,8 +58,16 @@ class Bot(object):
         elif REQUEST_MATCHER['love'](message):
             self.no_love(user, channel)
         else:
-            current_app.logger.debug(f"Ignoring phrase. Unable to match: {message}.")
-            pass
+            current_app.logger.debug(f"Using generic response. Unable to match: {message}.")
+            self.general_response(channel)
+
+
+    def general_response(self, channel):
+        self._send_message(channel, "wat?")
+
+
+    def ping_pong(self, channel):
+        self._send_message(channel, "What do you want?")
 
 
     def status_report(self, channel):
@@ -122,6 +133,10 @@ class Bot(object):
 >   @LunchBot I'm done eating
 - *Status Report*: Get a list of everyone who is at lunch.
 >   @LunchBot status
+- *Ping*: Make sure @LunchBot is alive
+> @LunchBot ping!
+- *Insult Lindsey*: Sends Lindsey an insulting DM
+> @LunchBot insult lindsey
 - *Help*: Show this text.
 >   @LunchBot halp
 _If you have any suggestions on how I could be improved just yell at DakDak._
@@ -143,7 +158,7 @@ _If you have any suggestions on how I could be improved just yell at DakDak._
         )
         self.brain.commit()
 
-    def _send_message(self,channel,text,**kwargs):
+    def _send_message(self, channel, text, **kwargs):
         post_message = self.client.api_call("chat.postMessage",
                                             channel=channel,
                                             username=self.name,
