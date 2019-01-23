@@ -39,19 +39,20 @@ class Bot(object):
         current_app.logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
         if REQUEST_MATCHER['help'](message):
             self.help(channel)
-        elif REQUEST_MATCHER['needs_snickers'](message):
-            self.recommend_snickers(channel)
-        elif REQUEST_MATCHER['dad_joke'](message):
-            self.make_dad_joke(channel, message, timestamp)
         elif REQUEST_MATCHER['start_lunch'](message):
             self.start_lunch(user, channel)
         elif REQUEST_MATCHER['stop_lunch'](message):
             self.stop_lunch(user, channel)
+        elif REQUEST_MATCHER['needs_snickers'](message):
+            self.recommend_snickers(channel)
+        elif REQUEST_MATCHER['dad_joke'](message):
+            self.make_dad_joke(channel, message, timestamp)
         elif REQUEST_MATCHER['insult_lindsey'](message):
             self.insult_lindsey(channel)
-        elif REQUEST_MATCHER['love']:
+        elif REQUEST_MATCHER['love'](message):
             self.no_love(user, channel)
         else:
+            current_app.logger.debug(f"Ignoring phrase. Unable to match: {message}.")
             pass
 
 
@@ -65,6 +66,7 @@ class Bot(object):
 _If you have any suggestions on how I could be improved just yell at DakDak._
         """
         self._send_message(channel, text)
+
 
     def no_love(self, user, channel):
         text = f"I am a robot <@{user}>. If you are lonely please seek comfort elsewhere."
