@@ -54,11 +54,12 @@ class Bot(object):
 
 
     def help(self, channel):
-        text = """Interactions I can handle:
-- Start lunch: just tell me you're going to lunch and I'll remember. Example phrase:
->I'm grabbing some food
-- Stop lunch: let me know when you're done and I'll remember. Example phrase:
->I'm done eating
+        text = """*How to interact with LunchBot:*
+
+- *Start lunch*: just tell me you're going to lunch and I'll remember. Example phrase:
+>    I'm grabbing some food
+- *Stop lunch*: let me know when you're done and I'll remember. Example phrase:
+>    I'm done eating
 _If you have any suggestions on how I could be improved just yell at DakDak._
         """
         self._send_message(channel, text)
