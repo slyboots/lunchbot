@@ -12,7 +12,8 @@ REQUEST_MATCHER = {
     'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x),
     'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit).*', x),
     'insult_lindsey': lambda x: re.match(r'.*insult lindsey.*', x),
-    'love': lambda x: re.match('.* i love you.*', x)
+    'love': lambda x: re.match('.*i love you.*', x),
+    'help': lambda x: re.match('.*h(e|a)lp.*', x)
 }
 
 
@@ -36,7 +37,9 @@ class Bot(object):
         channel = event['event']['channel']
         timestamp = event['event']['ts']
         current_app.logger.debug(f"[{timestamp}] message from {user} in {channel}: {message}")
-        if REQUEST_MATCHER['needs_snickers'](message):
+        if REQUEST_MATCHER['help'](message):
+            self.help(channel)
+        elif REQUEST_MATCHER['needs_snickers'](message):
             self.recommend_snickers(channel)
         elif REQUEST_MATCHER['dad_joke'](message):
             self.make_dad_joke(channel, message, timestamp)
@@ -46,7 +49,19 @@ class Bot(object):
             self.stop_lunch(user, channel)
         elif REQUEST_MATCHER['insult_lindsey'](message):
             self.insult_lindsey(channel)
+        elif REQUEST_MATCHER['love']:
+            self.no_love(user, channel)
 
+
+    def help(self, channel):
+        text = """Interactions I can handle:
+- Start lunch: just tell me you're going to lunch and I'll remember. Example phrase:
+>I'm grabbing some food
+- Stop lunch: let me know when you're done and I'll remember. Example phrase:
+>I'm done eating
+_If you have any suggestions on how I could be improved just yell at DakDak._
+        """
+        self._send_message(channel, text)
 
     def no_love(self, user, channel):
         text = f"I am a robot <@{user}>. If you are lonely please seek comfort elsewhere."
