@@ -1,9 +1,8 @@
 import json
 from flask import (
-    Blueprint, redirect, render_template, request,
+    Blueprint, redirect, request,
     url_for, jsonify, make_response, current_app
 )
-from werkzeug.exceptions import abort
 from lunchbot.db import get_db
 from lunchbot import bot, BOTNAME, BOTID
 
@@ -29,11 +28,12 @@ def _event_handler(event_type, slack_event):
     """
     # ================ App Mention Events =============== #
     # When you say @lunchbot
-    if event_type == "app_mention" and slack_event['event'].get('subtype', None) is None:
-        # send to bot for response
-        with current_app.app_context():
-            lunchbot.respond(slack_event)
-        return make_response("mention received", 200,)
+    if event_type == "app_mention":
+        if all(x not in slack_event['event'] for x in ["subtype", "edited"]):
+            # send to bot for response
+            with current_app.app_context():
+                lunchbot.respond(slack_event)
+            return make_response("mention received", 200,)
 
     # ================ Message Events =============== #
     # In the event you forgot to put the "@" before lunchbot
@@ -58,7 +58,7 @@ def receive():
     '''listen for stuff then do other stuff in response to those things'''
     # for some reason we got weird stuff
     if not request.is_json:
-       return make_response("Not JSON data", 500, {"X-Slack-No-Retry": 1})
+        return make_response("Not JSON data", 500, {"X-Slack-No-Retry": 1})
     slack_event = json.loads(request.data)
     current_app.logger.debug(f"received event: {json.dumps(slack_event)}")
     # Slack URL Verification
@@ -81,7 +81,7 @@ def receive():
 
 
 @bp.route('/geeks/', methods=['GET', 'POST'])
-def list():
+def display():
     '''
     The list() endpoint provides access to the list of geeks in the database
     you can view the list of geeks and thier individual statuses with a GET.

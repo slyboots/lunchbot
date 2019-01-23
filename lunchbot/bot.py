@@ -20,7 +20,7 @@ REQUEST_MATCHER = {
 
 
 def sanitize(text):
-    return re.sub(r'[^a-zA-Z0-9\s]','',text).lower()
+    return re.sub(r'[^a-zA-Z0-9\s]', '', text).lower()
 
 
 class Bot(object):
@@ -52,7 +52,7 @@ class Bot(object):
         elif REQUEST_MATCHER['needs_snickers'](message):
             self.recommend_snickers(channel)
         elif REQUEST_MATCHER['dad_joke'](message):
-            self.make_dad_joke(channel, message, timestamp)
+            self.make_dad_joke(channel, message)
         elif REQUEST_MATCHER['insult_lindsey'](message):
             self.insult_lindsey(channel, user)
         elif REQUEST_MATCHER['love'](message):
@@ -63,7 +63,7 @@ class Bot(object):
 
 
     def general_response(self, channel):
-        self._send_message(channel, "wat?")
+        self._send_message(channel, "_wat?_\nhttps://media3.giphy.com/media/3WmWdBzqveXaE/giphy.gif?cid=6104955e5c48cfa0615746752ec3fa67")
 
 
     def ping_pong(self, channel):
@@ -87,7 +87,7 @@ class Bot(object):
 
     def insult_lindsey(self, channel, user):
         if user == os.getenv('ADMIN_ID'):
-            self._send_message(os.getenv('LINDSEY_ID'),"You are the worst!")
+            self._send_message(os.getenv('LINDSEY_ID'), "You are the worst!")
             self._send_message(channel, "Just did!")
         else:
             self._send_message(channel, "No.")
@@ -98,7 +98,7 @@ class Bot(object):
         self._send_message(channel, joke, unfurl_media=True)
 
 
-    def make_dad_joke(self, channel, message, timestamp):
+    def make_dad_joke(self, channel, message):
         name = re.sub(r'(i( a)?m|uf3l7l0dv)+', '', message).strip()
         joke = f"Hi {name}, I'm {BOTNAME}"
         self._send_message(channel, joke)
@@ -116,12 +116,12 @@ class Bot(object):
             )
         else:
             self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you humans eat!")
-            self._update_db(user,None,1)
+            self._update_db(user, None, 1)
 
 
     def stop_lunch(self, user, channel):
         self._send_message(channel, f"Good. Now get back to work human meatsack!")
-        self._update_db(user,None,0)
+        self._update_db(user, None, 0)
 
 
     def help(self, channel):
@@ -149,7 +149,7 @@ _If you have any suggestions on how I could be improved just yell at DakDak._
         return result
 
 
-    def _update_db(self,*argv):
+    def _update_db(self, *argv):
         self.brain.execute(
             'INSERT INTO geeks (id,username,onlunch)'
             ' VALUES (?,?,?)'
