@@ -29,7 +29,7 @@ def _event_handler(event_type, slack_event):
     """
     # ================ App Mention Events =============== #
     # When you say @lunchbot
-    if event_type == "app_mention":
+    if event_type == "app_mention" and slack_event['event'].get('subtype', None) is None:
         # send to bot for response
         with current_app.app_context():
             lunchbot.respond(slack_event)
