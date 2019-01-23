@@ -12,8 +12,9 @@ REQUEST_MATCHER = {
     'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x),
     'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit).*', x),
     'insult_lindsey': lambda x: re.match(r'.*insult lindsey.*', x),
-    'love': lambda x: re.match('.*i love you.*', x),
-    'help': lambda x: re.match('.*h(e|a)lp.*', x)
+    'love': lambda x: re.match(r'.*i love you.*', x),
+    'help': lambda x: re.match(r'.*h(e|a)lp.*', x),
+    'status_report': lambda x: re.match(r'.*status( report)?.*', x)
 }
 
 
@@ -43,6 +44,8 @@ class Bot(object):
             self.start_lunch(user, channel)
         elif REQUEST_MATCHER['stop_lunch'](message):
             self.stop_lunch(user, channel)
+        elif REQUEST_MATCHER['status_report'](message):
+            self.status_report(channel)
         elif REQUEST_MATCHER['needs_snickers'](message):
             self.recommend_snickers(channel)
         elif REQUEST_MATCHER['dad_joke'](message):
@@ -56,16 +59,14 @@ class Bot(object):
             pass
 
 
-    def help(self, channel):
-        text = """*How to interact with LunchBot:*
-
-- *Start lunch*: just tell me you're going to lunch and I'll remember. Example phrase:
->    I'm grabbing some food
-- *Stop lunch*: let me know when you're done and I'll remember. Example phrase:
->    I'm done eating
-_If you have any suggestions on how I could be improved just yell at DakDak._
-        """
-        self._send_message(channel, text)
+    def status_report(self, channel):
+        geeks = self.get_geeks_onlunch()
+        total = len(geeks)
+        if total == 0:
+            message = "No humans are currently eating."
+        else:
+            message = f"There are {total} geeks eating: " + ",".join(geek['id'] for geek in geeks)
+        self._send_message(channel, message)
 
 
     def no_love(self, user, channel):
@@ -107,6 +108,22 @@ _If you have any suggestions on how I could be improved just yell at DakDak._
     def stop_lunch(self, user, channel):
         self._send_message(channel, f"Good. Now get back to work human meatsack!")
         self._update_db(user,None,0)
+
+
+    def help(self, channel):
+        text = """*How to interact with LunchBot (_with examples_):*
+
+- *Start lunch*: just tell me you're going to lunch and I'll remember.
+>   @LunchBot I'm grabbing some food
+- *Stop lunch*: let me know when you're done and I'll remember.
+>   @LunchBot I'm done eating
+- *Status Report*: Get a list of everyone who is at lunch.
+>   @LunchBot status
+- *Help*: Show this text.
+>   @LunchBot halp
+_If you have any suggestions on how I could be improved just yell at DakDak._
+        """
+        self._send_message(channel, text)
 
 
     def get_geeks_onlunch(self):
