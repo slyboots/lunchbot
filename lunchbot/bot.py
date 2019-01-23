@@ -6,6 +6,8 @@ from werkzeug.local import LocalProxy
 from slackclient import SlackClient
 from lunchbot import BOTNAME, db
 
+ADMINS = os.getenv('ADMINS').split(',')
+
 REQUEST_MATCHER = {
     'dad_joke': lambda x: re.match(r'^.*(i( a)??m).+hungry', x),
     'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take|brb).+(lunch|food)', x),
@@ -86,8 +88,8 @@ class Bot(object):
 
 
     def insult_lindsey(self, channel, user):
-        if user == os.getenv('ADMIN_ID'):
-            self._send_message(os.getenv('LINDSEY_ID'), "You are the worst!")
+        if user in ADMINS:
+            self._send_message(os.getenv('LINDSEY_ID'), f"{user} would like you to know: You are the worst!")
             self._send_message(channel, "Just did!")
         else:
             self._send_message(channel, "No.")
