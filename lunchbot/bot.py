@@ -51,6 +51,8 @@ class Bot(object):
             self.insult_lindsey(channel)
         elif REQUEST_MATCHER['love']:
             self.no_love(user, channel)
+        else:
+            pass
 
 
     def help(self, channel):
