@@ -8,10 +8,11 @@ from lunchbot import BOTNAME, db
 
 REQUEST_MATCHER = {
     'dad_joke': lambda x: re.match(r'^.*(i( a)??m).+hungry', x),
-    'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take).+(lunch|food)', x),
+    'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take|brb).+(lunch|food)', x),
     'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x),
     'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit).*', x),
-    'insult_lindsey': lambda x: re.match(r'.*insult lindsey.*', x)
+    'insult_lindsey': lambda x: re.match(r'.*insult lindsey.*', x),
+    'love': lambda x: re.match('.* i love you.*', x)
 }
 
 
@@ -45,6 +46,11 @@ class Bot(object):
             self.stop_lunch(user, channel)
         elif REQUEST_MATCHER['insult_lindsey'](message):
             self.insult_lindsey(channel)
+
+
+    def no_love(self, user, channel):
+        text = f"I am a robot <@{user}>. If you are lonely please seek comfort elsewhere."
+        self._send_message(channel, text)
 
 
     def insult_lindsey(self, channel):
