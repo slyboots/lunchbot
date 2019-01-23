@@ -51,7 +51,7 @@ class Bot(object):
         elif REQUEST_MATCHER['dad_joke'](message):
             self.make_dad_joke(channel, message, timestamp)
         elif REQUEST_MATCHER['insult_lindsey'](message):
-            self.insult_lindsey(channel)
+            self.insult_lindsey(channel, user)
         elif REQUEST_MATCHER['love'](message):
             self.no_love(user, channel)
         else:
@@ -74,9 +74,12 @@ class Bot(object):
         self._send_message(channel, text)
 
 
-    def insult_lindsey(self, channel):
-        self._send_message(os.getenv('LINDSEY_ID'),"You are the worst!")
-        self._send_message(channel, "Just did!")
+    def insult_lindsey(self, channel, user):
+        if user == os.getenv('ADMIN_ID'):
+            self._send_message(os.getenv('LINDSEY_ID'),"You are the worst!")
+            self._send_message(channel, "Just did!")
+        else:
+            self._send_message(channel, "No.")
 
 
     def recommend_snickers(self, channel):
