@@ -78,7 +78,7 @@ class Bot(object):
         if total == 0:
             message = "No humans are currently eating."
         else:
-            message = f"There are {total} geeks eating: " + ",".join(f"<@{geek['id']}>" for geek in geeks)
+            message = f"There are {total} geeks eating: " + ", ".join(f"<@{geek['id']}>" for geek in geeks)
         self._send_message(channel, message)
 
 
