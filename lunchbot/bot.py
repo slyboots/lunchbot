@@ -117,12 +117,14 @@ class Bot(object):
                 f"Here they are:\n{geek_list}"
             )
         else:
-            self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you humans eat!")
+            user_type = "panda" if user == 'U04V9S3MU' else "human"
+            self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you {user_type}s eat!")
             self._update_db(user, None, 1)
 
 
     def stop_lunch(self, user, channel):
-        self._send_message(channel, f"Good. Now get back to work human meatsack!")
+        user_type = "panda" if user == 'U04V9S3MU' else "human"
+        self._send_message(channel, f"Good. Now get back to work {user_type} meatsack!")
         self._update_db(user, None, 0)
 
 
