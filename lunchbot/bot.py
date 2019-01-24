@@ -65,7 +65,7 @@ class Bot(object):
 
 
     def general_response(self, channel):
-        self._send_message(channel, "_wat?_\nhttps://media3.giphy.com/media/3WmWdBzqveXaE/giphy.gif?cid=6104955e5c48cfa0615746752ec3fa67")
+        self._send_message(channel, "_wat?_\nhttp://rg2.me/lunchwat")
 
 
     def ping_pong(self, channel):
