@@ -1,6 +1,7 @@
 '''actual bot code'''
 import os
 import re
+import json
 from flask import current_app
 from werkzeug.local import LocalProxy
 from slackclient import SlackClient
@@ -18,12 +19,14 @@ REQUEST_MATCHER = {
     'help': lambda x: re.match(r'.*h(e|a)lp.*', x),
     'status_report': lambda x: re.match(r'.*status( report)?.*', x),
     'ping': lambda x: re.match(r'.*ping.*', x),
-    'potluck': lambda x: re.match(r'.*potluck.*', x)
+    'potluck': lambda x: re.match(r'.*potluck.*', x),
+    'set_pronouns': lambda x: re.match(r'.*i( a)??m an??\s"(.+)"', x),
+    'get_brain': lambda x: re.match(r'.*let me pick your brain.*', x)
 }
 
 
 def sanitize(text):
-    return re.sub(r'[^a-zA-Z0-9\s]', '', text).lower()
+    return re.sub(r'[^a-zA-Z0-9\s"]', '', text).lower()
 
 
 class Bot(object):
@@ -63,9 +66,20 @@ class Bot(object):
             self.no_love(user, channel)
         elif REQUEST_MATCHER['potluck'](message):
             self.toggle_potluck(channel)
+        elif REQUEST_MATCHER['set_pronouns'](message):
+            self.set_pronoun(channel, user, message)
+        elif REQUEST_MATCHER['get_brain'](message):
+            self._send_message(channel, self._get_brain())
         else:
             current_app.logger.debug(f"Using generic response. Unable to match: {message}.")
             self.general_response(channel)
+
+
+    def set_pronoun(self, channel, user, message):
+        pronoun = REQUEST_MATCHER['set_pronouns'](message).groups()[-1]
+        current_app.logger.debug(f"PRONOUN: {pronoun}")
+        self._update_pronoun(pronoun, user)
+        self._send_message(channel, f"Okay, from now on I'll refer to you as a \"{pronoun}\"")
 
 
     def toggle_potluck(self, channel):
@@ -105,7 +119,7 @@ class Bot(object):
 
 
     def recommend_snickers(self, channel):
-        joke = f"You get so cranky when you're hungry. Have a snickers:\nhttps://www.amazon.com/SNICKERS-Singles-Chocolate-1-86-Ounce-48-Count/dp/B001HXI0V0/ref=sr_1_5?keywords=snicker&qid=1548107459&sr=8-5"
+        joke = f"You get so cranky when you're hungry. Have a snickers:\nhttp://rg2.me/getasnickerscrankypants"
         self._send_message(channel, joke, unfurl_media=True)
 
 
@@ -129,20 +143,19 @@ class Bot(object):
                 f"Here they are:\n{geek_list}"
             )
         else:
-            user_type = "panda" if user == 'U04V9S3MU' else "human"
-            self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you {user_type}s eat!")
-            self._update_db(user, None, 1)
+            user_pronoun = self._get_pronoun(user)
+            self._send_message(channel, f"Alright <@{user}>! Enjoy whatever it is you {user_pronoun}s eat!")
+            self._update_lunch(user, 1)
 
 
     def stop_lunch(self, user, channel):
-        user_type = "panda" if user == 'U04V9S3MU' else "human"
-        self._send_message(channel, f"Good. Now get back to work {user_type} meatsack!")
-        self._update_db(user, None, 0)
+        user_pronoun = self._get_pronoun(user)
+        self._send_message(channel, f"Good. Now get back to work {user_pronoun}!")
+        self._update_lunch(user, 0)
 
 
     def help(self, channel):
         text = """*How to interact with LunchBot (_with examples_):*
-
 - *Start lunch*: just tell me you're going to lunch and I'll remember.
 >   @LunchBot I'm grabbing some food
 - *Stop lunch*: let me know when you're done and I'll remember.
@@ -165,14 +178,36 @@ _If you have any suggestions on how I could be improved just yell at DakDak._
         return result
 
 
-    def _update_db(self, *argv):
+    def _update_lunch(self, user, onlunch):
+        query = ''' INSERT INTO geeks (id,onlunch)
+                    VALUES (?,?)
+                    ON CONFLICT(id) DO UPDATE SET onlunch=excluded.onlunch''',
         self.brain.execute(
-            'INSERT INTO geeks (id,username,onlunch)'
-            ' VALUES (?,?,?)'
-            ' ON CONFLICT(id) DO UPDATE SET onlunch=excluded.onlunch',
-            argv
+            query,
+            (user, onlunch)
         )
         self.brain.commit()
+
+
+    def _get_pronoun(self, user):
+        query = "SELECT pronoun from geeks WHERE id = ?"
+        return self.brain.execute(query, [user]).fetchone()
+
+
+    def _update_pronoun(self, pronoun, user):
+        query = f''' UPDATE geeks
+                    SET pronoun = ?
+                    WHERE id = ?'''
+        self.brain.execute(query, [pronoun, user])
+        self.brain.commit()
+
+
+    def _get_brain(self):
+        return json.dumps(
+            [dict(row) for row in self.brain.execute('SELECT * from geeks').fetchall()],
+            indent=2
+        )
+
 
     def _send_message(self, channel, text, **kwargs):
         post_message = self.client.api_call("chat.postMessage",
