@@ -17,7 +17,8 @@ REQUEST_MATCHER = {
     'love': lambda x: re.match(r'.*i love you.*', x),
     'help': lambda x: re.match(r'.*h(e|a)lp.*', x),
     'status_report': lambda x: re.match(r'.*status( report)?.*', x),
-    'ping': lambda x: re.match(r'.*ping.*', x)
+    'ping': lambda x: re.match(r'.*ping.*', x),
+    'potluck': lambda x: re.match(r'.*potluck.*', x)
 }
 
 
@@ -34,6 +35,7 @@ class Bot(object):
         self.verification = os.environ.get("VERIFICATION_TOKEN")
         self.client = SlackClient(os.getenv("BOT_TOKEN"))
         self.brain = LocalProxy(db.get_db)
+        self.potluck = False
 
     def respond(self, event):
         user = event['event']['user']
@@ -59,9 +61,16 @@ class Bot(object):
             self.insult_lindsey(channel, user)
         elif REQUEST_MATCHER['love'](message):
             self.no_love(user, channel)
+        elif REQUEST_MATCHER['potluck'](message):
+            self.toggle_potluck(channel)
         else:
             current_app.logger.debug(f"Using generic response. Unable to match: {message}.")
             self.general_response(channel)
+
+
+    def toggle_potluck(self, channel):
+        self.potluck = not self.potluck
+        self._send_message(channel, f"Potluck mode set to: {self.potluck}")
 
 
     def general_response(self, channel):
@@ -78,7 +87,7 @@ class Bot(object):
         if total == 0:
             message = "No humans are currently eating."
         else:
-            message = f"There are {total} geeks eating: " + ", ".join(f"<@{geek['id']}>" for geek in geeks)
+            message = f"{total} geek{'s' if total > 1 else ''} eating: " + ", ".join(f"<@{geek['id']}>" for geek in geeks)
         self._send_message(channel, message)
 
 
@@ -107,6 +116,9 @@ class Bot(object):
 
 
     def start_lunch(self, user, channel):
+        if self.potluck is True:
+            self._send_message(channel, f"We're having a potluck! Now shut up and go eat")
+            return
         geeks_eating = self.get_geeks_onlunch()
         if len(geeks_eating) > int(os.getenv('LUNCH_WARNING_THRESHOLD')):
             geek_list = "\n".join(f"- <@{geek['id']}>" for geek in geeks_eating)
