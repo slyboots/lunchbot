@@ -10,7 +10,7 @@ ADMINS = os.getenv('ADMINS').split(',')
 
 REQUEST_MATCHER = {
     'dad_joke': lambda x: re.match(r'^.*(i( a)??m).+hungry', x),
-    'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take|brb).+(lunch|food)', x),
+    'start_lunch': lambda x: re.match(r'^.*(get|grab|going|take|brb).+(lunch|food|eat)', x),
     'stop_lunch': lambda x: re.match(r'^.*(i( a)??m).+(done|back|finished|full)', x),
     'needs_snickers': lambda x: re.match(r'.*(fuck|bitch|hate|ass|stupid|dumb|shit|suck).*', x),
     'insult_lindsey': lambda x: re.match(r'.*insult lindsey.*', x),
