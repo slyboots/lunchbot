@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 from flask import Flask, render_template_string, request, make_response, jsonify
 from flask.logging import default_handler
@@ -19,7 +20,7 @@ formatter = RequestFormatter(
 
 def no_retry_response(e, status_code=500):
     """responds with a slack no retry header"""
-    return make_response(message, status_code, {"X-Slack-No-Retry": 1})
+    return make_response(json.dumps(e.args), status_code, {"X-Slack-No-Retry": 1})
 
 def create_app(test_config=None):
     default_handler.setFormatter(formatter)
@@ -51,9 +52,9 @@ def create_app(test_config=None):
     @app.route('/ping')
     def ping():
         return jsonify({'response': 'Pong'})
-    from . import db
+    from lunchbot import db
     db.init_app(app)
-    from . import api
+    from lunchbot import api
     app.register_blueprint(api.bp)
     app.register_error_handler(500, no_retry_response)
     return app
