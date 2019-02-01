@@ -5,8 +5,10 @@ from flask import Flask, render_template_string, request, make_response, jsonify
 from flask.logging import default_handler
 from werkzeug.exceptions import HTTPException
 
+
 BOTNAME = __name__
 BOTID = os.getenv('BOTID')
+
 
 class RequestFormatter(logging.Formatter):
     def format(self, record):
@@ -14,10 +16,12 @@ class RequestFormatter(logging.Formatter):
         record.remote_addr = request.remote_addr
         return super().format(record)
 
+
 formatter = RequestFormatter(
     '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
     '%(levelname)s in %(module)s: %(message)s'
 )
+
 
 def no_retry_response(e, status_code=500):
     '''@type e: werkzeug.exceptions.HTTPException'''
