@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from flask import Flask, render_template_string, request, make_response
+from flask import Flask, render_template_string, request, make_response, jsonify
 from flask.logging import default_handler
 from werkzeug.exceptions import HTTPException
 
