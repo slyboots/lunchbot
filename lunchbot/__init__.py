@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, render_template_string, request, make_response
+from flask import Flask, render_template_string, request, make_response, jsonify
 from flask.logging import default_handler
 
 BOTNAME = __name__
@@ -47,7 +47,10 @@ def create_app(test_config=None):
     @app.route('/')
     def index():
         return render_template_string("<h1>Hi! I'm {{name}}.</h1>", name=BOTNAME)
-
+    # a ping endpoint for checking if the server is running
+    @app.route('/ping')
+    def ping():
+        return jsonify({'response': 'Pong'})
     from . import db
     db.init_app(app)
     from . import api
